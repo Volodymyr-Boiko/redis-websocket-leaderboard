@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Leaderboard: Top 20</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            padding-bottom: 1em;
+        }
+        #content {
+            width: 30%;
+            margin: 0 auto;
+        }
+        #topTable {
+        }
+    </style>
+</head>
+
+<body>
+<div id="content">
+    <h1>Leaderboard</h1>
+
+    <table id="topTable" class="table">
+        <thead>
+            <tr>
+                <th width="75">Rank</th>
+                <th width="200">Name</th>
+                <th width="100">Score</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var itemCount = 20;
+
+    function refreshLeaderboard() {
+        var leaderboardSocket = new WebSocket("ws://localhost:8765/top");
+
+        leaderboardSocket.onopen = function(event) {
+            var topRequestParams = {
+                "count": itemCount
+            };
+            leaderboardSocket.send(JSON.stringify(topRequestParams));
+        };
+
+        leaderboardSocket.onmessage = function(event) {
+            scores = JSON.parse(event.data);
+            console.log(scores);
+
+            var tableBody = $("#topTable").find("tbody");
+            tableBody.empty();
+
+            for (var i = 0; i < scores.length; i++) {
+                var row = $("<tr>").append(
+                        $("<td>").text(i + 1),
+                        $("<td>").text(scores[i][0]),
+                        $("<td>").text(scores[i][1])
+                );
+                tableBody.append(row);
+            }
+        };
+    }
+
+    refreshLeaderboard();
+    setInterval(refreshLeaderboard, 1000);
+</script>
+
+</body>
+
+</html>
