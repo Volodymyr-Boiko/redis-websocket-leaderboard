@@ -3,11 +3,22 @@
 import asyncio
 import json
 import redis
+import sys
 import websockets
 
 
 def main():
-    server = LeaderboardServer(socket_host="localhost", socket_port=8765, redis_host="localhost", redis_port=6379)
+    server_host = "localhost"
+    server_port = 8765
+
+    redis_host = "localhost"
+    redis_port = 6379
+
+    if len(sys.argv) > 1:
+        server_host, server_port = sys.argv[1].split(":")
+        redis_host, redis_port = sys.argv[2].split(":")
+
+    server = LeaderboardServer(socket_host=server_host, socket_port=int(server_port), redis_host=redis_host, redis_port=int(redis_port))
     server.start()
 
 
